@@ -57,7 +57,7 @@ exports.handler = async function(event, context) {
 
   try {
     // Fetch Products and Images in parallel
-    var results  = await Promise.all([ fetchAll('Products'), fetchAll('Images') ]);
+    var results  = await Promise.all([ fetchAll('Product'), fetchAll('Images') ]);
     var products = results[0];
     var images   = results[1];
 
