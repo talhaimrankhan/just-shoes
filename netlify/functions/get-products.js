@@ -13,9 +13,11 @@ var HEADERS = {
   'Content-Type':  'application/json'
 };
 
-// Fix Bubble CDN URLs (they come without protocol)
+// Fix Bubble CDN URLs (they come without protocol or have stray spaces)
 function fixUrl(url) {
   if (!url) return '';
+  // Remove all whitespace characters (Bubble sometimes adds spaces)
+  url = url.replace(/\s+/g, '');
   if (url.startsWith('//')) return 'https:' + url;
   if (url.startsWith('http')) return url;
   return 'https://' + url;
@@ -85,7 +87,7 @@ exports.handler = async function(event, context) {
 
       return {
         id:              p._id,
-        name:            p['Name']            || '',
+        name:            p['Name'] || [p['brandName'], p['categoryName']].filter(Boolean).join(' — ') || 'Unnamed Product',
         brand:           p['brandName']       || '',
         category:        p['categoryName']    || '',
         subCategory:     p['subCategoryName'] || '',
