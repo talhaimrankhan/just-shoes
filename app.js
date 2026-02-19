@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initScrollReveal();
 
   // These only apply to the landing page (index.html)
-  const isLandingPage = !!document.getElementById('masonryGrid') && !!document.getElementById('heroSearchForm');
+  const isLandingPage = !!document.getElementById('masonryGrid');
   if (!isLandingPage) return;
 
   initLightboxEvents();
@@ -316,12 +316,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     allImages = await fetchImages();
     renderGrid(allImages);
-    buildMarquee(allImages);
   } catch (err) {
     console.warn('Bubble fetch failed, showing demo data:', err.message);
     allImages = DEMO_IMAGES;
     renderGrid(allImages);
-    buildMarquee(allImages);
-    showToast('Showing demo images — deploy to Netlify to see your real data');
+    showToast('Could not load images from server. Showing demo data.');
   }
 });
