@@ -94,77 +94,32 @@
         <!-- Active filter tags -->
         <div class="active-filters" id="activeTags"></div>
 
-        <!-- ── GENDER ── -->
+        <!-- ── BRAND (populated from data) ── -->
         <div class="filter-group open">
-          <button class="filter-group-header" type="button" aria-expanded="true">
-            <span class="filter-group-label">gender</span>
+          <button class="filter-group-header" type="button" onclick="toggleGroup(this)">
+            <span class="filter-group-label">brand</span>
             <svg class="filter-group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
           <div class="filter-group-body">
-            <div class="filter-options">
-              <label class="filter-option">
-                <input type="checkbox" data-type="gender" data-value="women" />
-                <span class="filter-option-label">women</span>
-              </label>
-              <label class="filter-option">
-                <input type="checkbox" data-type="gender" data-value="men" />
-                <span class="filter-option-label">men</span>
-              </label>
-              <label class="filter-option">
-                <input type="checkbox" data-type="gender" data-value="unisex" />
-                <span class="filter-option-label">unisex</span>
-              </label>
+            <div class="filter-options" id="filterBrands">
+              <div style="font-size:12px;color:var(--mid-gray);padding:4px 0">Loading…</div>
             </div>
           </div>
         </div>
 
-        <!-- ── COLOUR ── -->
+        <!-- ── CATEGORY (populated from data) ── -->
         <div class="filter-group open">
-          <button class="filter-group-header" type="button" aria-expanded="true">
-            <span class="filter-group-label">colour</span>
+          <button class="filter-group-header" type="button" onclick="toggleGroup(this)">
+            <span class="filter-group-label">category</span>
             <svg class="filter-group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
           <div class="filter-group-body">
-            <div class="filter-colours">
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="black" />
-                <span class="colour-swatch black"></span>
-                <span class="filter-colour-label">black</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="white" />
-                <span class="colour-swatch white"></span>
-                <span class="filter-colour-label">white</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="tan" />
-                <span class="colour-swatch tan"></span>
-                <span class="filter-colour-label">tan</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="red" />
-                <span class="colour-swatch red"></span>
-                <span class="filter-colour-label">red</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="grey" />
-                <span class="colour-swatch grey"></span>
-                <span class="filter-colour-label">grey</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="brown" />
-                <span class="colour-swatch brown"></span>
-                <span class="filter-colour-label">brown</span>
-              </label>
-              <label class="filter-colour-option">
-                <input type="checkbox" data-type="colour" data-value="navy" />
-                <span class="colour-swatch navy"></span>
-                <span class="filter-colour-label">navy</span>
-              </label>
+            <div class="filter-options" id="filterCategories">
+              <div style="font-size:12px;color:var(--mid-gray);padding:4px 0">Loading…</div>
             </div>
           </div>
         </div>
@@ -216,6 +171,12 @@
         </div>
       </div>
 
+      <!-- Loading state -->
+      <div class="grid-loading" id="searchLoading" style="display:none;">
+        <div class="spinner"></div>
+        Loading products…
+      </div>
+
       <!-- Empty state -->
       <div class="search-empty" id="searchEmpty" style="display:none;">
         <svg class="search-empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -237,27 +198,36 @@
 
 
 <!-- ══════════════════════════════════════════
-     LIGHTBOX (shared structure)
+     LIGHTBOX — multi-image per product
 ══════════════════════════════════════════ -->
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Product viewer">
   <button class="lightbox-close" id="lbClose" aria-label="Close">✕</button>
-  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">←</button>
+
+  <!-- prev/next PRODUCT -->
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous product">←</button>
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next product">→</button>
+
   <div class="lightbox-inner">
+    <!-- IMAGE PANE -->
     <div class="lightbox-img-pane">
-      <img id="lbImg" src="" alt="" />
+      <!-- prev/next IMAGE within product -->
+      <button class="lb-img-nav lb-img-prev" id="lbImgPrev" aria-label="Previous photo" style="display:none">‹</button>
+      <img id="lbImg" src="" alt=""/>
+      <button class="lb-img-nav lb-img-next" id="lbImgNext" aria-label="Next photo" style="display:none">›</button>
+      <!-- image counter -->
+      <div class="lb-counter" id="lbCounter" style="display:none">1 / 1</div>
+      <!-- thumbnail strip -->
+      <div class="lb-thumbs" id="lbThumbs"></div>
     </div>
+
+    <!-- INFO PANE -->
     <div class="lightbox-info">
-      <span class="lb-tag" id="lbTag"></span>
-      <div class="lb-title" id="lbTitle"></div>
-      <div class="lb-desc"  id="lbDesc"></div>
-      <div class="lb-meta-row" id="lbMeta"></div>
-      <a class="lb-link" id="lbLink" href="#" target="_blank" rel="noopener">
-        View details
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M5 3h6v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
+      <span class="lb-tag"      id="lbTag"></span>
+      <div  class="lb-title"    id="lbTitle"></div>
+      <div  class="lb-desc"     id="lbDesc"></div>
+      <div  class="lb-meta-row" id="lbMeta"></div>
     </div>
   </div>
-  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">→</button>
 </div>
 
 <div class="toast" id="toast"></div>
