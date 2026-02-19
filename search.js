@@ -1,9 +1,14 @@
 /* ═══════════════════════════════════════════════
+   JUST/SHOES — search.js  v3
+   Wrapped in IIFE to prevent scope conflicts
+═══════════════════════════════════════════════ */
+(function() {
+'use strict';
+
+/* ═══════════════════════════════════════════════
    JUST/SHOES — search.js  v2
    Real Bubble data, multi-image lightbox
 ═══════════════════════════════════════════════ */
-'use strict';
-
 var API_ENDPOINT = '/.netlify/functions/get-products';
 var RATIO_CYCLE  = ['tall','wide','square','tall','square','wide'];
 var RATIO_MAP    = { tall:'130%', wide:'68%', square:'100%' };
@@ -49,16 +54,20 @@ function showErrorState(msg) {
 async function loadProducts() {
   showLoading();
   try {
-    var res=await fetch(API_ENDPOINT);
-    if(!res.ok) throw new Error('API '+res.status);
-    var data=await res.json();
-    if(data.error) throw new Error(data.error);
-    allProducts=data.products||[];
+    console.log('[JustShoes] Fetching from', API_ENDPOINT);
+    var res = await fetch(API_ENDPOINT);
+    console.log('[JustShoes] Response status:', res.status);
+    if (!res.ok) throw new Error('API returned ' + res.status);
+    var data = await res.json();
+    console.log('[JustShoes] Data received:', data);
+    if (data.error) throw new Error(data.error);
+    allProducts = data.products || [];
+    console.log('[JustShoes] Products loaded:', allProducts.length);
     hideLoading();
   } catch(err) {
-    console.error(err);
+    console.error('[JustShoes] Load failed:', err);
     hideLoading();
-    showErrorState('Could not load products. Check your connection.');
+    showErrorState('Could not load products: ' + err.message);
   }
 }
 
@@ -402,3 +411,5 @@ document.addEventListener('DOMContentLoaded',async function(){
   var results=applyFilters(kw);
   renderGrid(results,kw);
 });
+
+})();
